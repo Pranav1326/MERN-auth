@@ -3,7 +3,7 @@ const createError = require('http-errors');
 
 const User = require('../models/User.model');
 const { authSchema, loginAuthSchema } = require('../util/validation_schema');
-const { signAccessToken } = require('../util/jwt_helper');
+const { signAccessToken, signRefreshToken, verifyRefreshToken } = require('../util/jwt_helper');
 
 exports.register = async (req, res, next) => {
     try{
@@ -16,7 +16,8 @@ exports.register = async (req, res, next) => {
             const user = User(result);
             const newUser = await user.save();
             const accessToken = await signAccessToken(newUser.id);
-            res.json({ accessToken });
+            const refreshToken = await signRefreshToken(newUser.id);
+            res.json({ accessToken, refreshToken });
         }
     } catch(err){
         if(err.isJoi) err.status = 422;
@@ -35,8 +36,9 @@ exports.login = async (req, res, next) => {
         if(!isMatch) throw createError.Unauthorized("Username/Password not valid!");
 
         const accessToken = await signAccessToken(user.id);
+        const refreshToken = await signRefreshToken(user.id);
         
-        res.json({ accessToken });
+        res.json({ accessToken, refreshToken });
     } catch (err) {
         if(err.isJoi) return next(createError.BadRequest("Invalid Username or Password!"));
         next(err);
@@ -44,7 +46,18 @@ exports.login = async (req, res, next) => {
 };
 
 exports.refreshToken = async (req, res, next) => {
-    res.json("Refresh-token route.");
+    try {
+        const refToken = req.body.refreshToken;
+        if(!refToken) throw createError.BadRequest();
+
+        const verifiedUser = await verifyRefreshToken(refToken);
+        const accessToken = await signAccessToken(verifiedUser);
+        const refreshToken = await signRefreshToken(verifiedUser);
+
+        res.json({ accessToken, refreshToken });
+    } catch (err) {
+        next(err);
+    }
 };
 
 exports.logout = async (req, res, next) => {

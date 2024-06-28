@@ -11,10 +11,13 @@ app.use(morgan("combined"));
 const db = require('./util/db');
 
 const authRoute = require('./routes/Auth.route');
+const { verifyAccessToken } = require('./util/jwt_helper');
 
 app.use('/auth', authRoute);
 
-app.use('/', async (req, res) => res.json({ message: "Home route!" }));
+app.get ('/protected', verifyAccessToken, (req, res) => res.json({ message: "Procted route!" }));
+
+app.use('/', (req, res) => res.json({ message: "Home route!" }));
 
 app.use(async (req, res, next) => {
     next(createError.NotFound());
