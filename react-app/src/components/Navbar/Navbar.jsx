@@ -8,9 +8,15 @@ const Navbar = () => {
       <h1>MERN Authentication</h1>
       <div className="links">
         <ul>
-          <Link to='/'>Home</Link>
-          <Link to='/procted'>Procted</Link>
-          <Link to='/auth'>Login</Link>
+          <li>
+            <Link to='/'>Home</Link>
+          </li>
+          <li>
+            <Link to='/procted'>Procted</Link>
+          </li>
+          <li>
+            <Link to='/auth'>Login</Link>
+          </li>
         </ul>
       </div>
     </div>
