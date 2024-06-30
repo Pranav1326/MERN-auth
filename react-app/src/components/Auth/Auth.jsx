@@ -1,8 +1,15 @@
-
+import { useState } from 'react';
+import Login from './Login';
+import Register from './Register';
 
 const Auth = () => {
+
+  const [ isRegistrated, setIsRegistrated ] = useState(true);
+  
   return (
-    <div>Auth</div>
+    <div>
+      { isRegistrated ? <Login setIsRegistrated={setIsRegistrated} /> : <Register setIsRegistrated={setIsRegistrated} /> }
+    </div>
   );
 }
 
