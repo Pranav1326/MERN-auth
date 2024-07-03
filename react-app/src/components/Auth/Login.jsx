@@ -1,17 +1,18 @@
+import axios from 'axios';
+
 import { useState } from 'react';
 import './styles.css';
-import { Link } from 'react-router-dom';
 
 const Login = ({ setIsRegistrated }) => {
 
   const [ loginDetails, setLoginDetails ] = useState({
-    username: '',
+    email: '',
     password: ''
   });
   
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log(loginDetails);
+    loginRequest();
   }
   
   const handleChanges = e => {
@@ -23,16 +24,30 @@ const Login = ({ setIsRegistrated }) => {
     setIsRegistrated(false);
   }
   
+  const loginRequest = async () => {
+    try {
+      const res = await axios.post(`http://localhost:8000/auth/login`, {
+        email: loginDetails.email,
+        password: loginDetails.password
+      });
+      console.log(res.data);
+      sessionStorage.setItem("act", res.data.accessToken);
+      sessionStorage.setItem("rft", res.data.refreshToken);
+    } catch (err) {
+      console.log(err);
+    }
+  }
+  
   return (
     <div className="login-main">
       <div className="login-box">
         <h1>Login</h1>
         <form method="post" onSubmit={handleSubmit}>
           <div className="username-box">
-            <input type="text" name="username" value={loginDetails.username} onChange={handleChanges} placeholder='Username'  id="username" />
+            <input type="email" name="email" value={loginDetails.email} onChange={handleChanges} placeholder='Email'  id="email" required />
           </div>
           <div className="password-box">
-            <input type="password" name="password" value={loginDetails.password} onChange={handleChanges} placeholder='Password'  id="password" />
+            <input type="password" name="password" value={loginDetails.password} onChange={handleChanges} placeholder='Password'  id="password" required />
           </div>
           <button type="submit">Login</button>
           <p className='register-route-click' onClick={handleRegsiterRoute}>New here?</p>
